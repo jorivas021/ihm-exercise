@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESGAE - Inscription en ligne (Version Ergonomique IHM)</title>
+    <!-- Chargement de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chargement de la police Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chargement de FontAwesome pour des icônes nettes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        esgae: {
+                            navy: '#0f294a',
+                            royal: '#1d4ed8',
+                            light: '#eff6ff',
+                            accent: '#3b82f6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Transitions fluides pour les états de validation et annotations */
+        .input-transition {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Animation douce pour les badges pédagogiques du mode présentation */
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+        }
+
+        .ihm-highlight {
+            animation: pulse-border 2s infinite;
+            border-color: #f59e0b !important;
+        }
+
+        /* Animation d'apparition de la modale */
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-animate {
+            animation: modalFadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between antialiased selection:bg-blue-100 selection:text-esgae-navy">
+
+    <!-- Barre supérieure / Navigation institutionnelle -->
+    <header class="bg-esgae-navy text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <!-- Identité visuelle ESGAE -->
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/10 p-2.5 rounded-xl border border-white/15 backdrop-blur-sm">
+                    <i class="fa-solid fa-graduation-cap text-2xl text-blue-300"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-xl tracking-tight text-white">ESGAE</span>
+                        <span class="hidden sm:inline-block text-xs bg-blue-500/30 text-blue-200 px-2 py-0.5 rounded-full border border-blue-400/30">Portail Étudiant</span>
+                    </div>
+                    <p class="text-xs text-slate-300 font-light">École Supérieure de Gestion et d'Administration des Entreprises</p>
+                </div>
+            </div>
+
+            <!-- Bouton Mode Présentation IHM pour la soutenance -->
+            <button id="toggleIhmBtn" type="button" 
+                class="flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-400/40 transition-all cursor-pointer shadow-sm">
+                <i class="fa-solid fa-chalkboard-user"></i>
+                <span id="toggleIhmText">Mode Présentation IHM : Voir les améliorations</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Bandeau d'information lorsqu'on active le mode Présentation -->
+    <div id="ihmBanner" class="hidden bg-amber-50 border-b border-amber-200 px-4 py-3 transition-all">
+        <div class="max-w-3xl mx-auto flex items-start sm:items-center justify-between gap-3 text-amber-900 text-xs sm:text-sm">
+            <div class="flex items-center space-x-2.5">
+                <span class="bg-amber-500 text-white p-1.5 rounded-lg shrink-0">
+                    <i class="fa-solid fa-lightbulb"></i>
+                </span>
+                <p>
+                    <strong>Mode Soutenance IHM activé :</strong> Les pastilles numérotées ci-dessous mettent en évidence la résolution des <strong>4 défauts ergonomiques</strong> du formulaire initial (critères de Bastien & Scapin).
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu Principal -->
+    <main class="flex-grow py-8 px-4 sm:px-6">
+        <div class="max-w-2xl mx-auto">
+            
+            <!-- Carte Principale du Formulaire -->
+            <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/70 border border-slate-100 overflow-hidden">
+                
+                <!-- En-tête de la carte -->
+                <div class="bg-gradient-to-r from-esgae-navy to-blue-900 px-6 sm:px-8 py-6 text-white relative">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div>
+                            <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Inscription en ligne</h1>
+                            <p class="text-blue-200 text-sm mt-1">Année académique 2026 – 2027 • Dossier de pré-inscription</p>
+                        </div>
+                        <div class="inline-flex items-center space-x-1.5 bg-white/10 px-3 py-1.5 rounded-lg text-xs text-blue-100 self-start sm:self-center">
+                            <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+                            <span>Saisie sécurisée</span>
+                        </div>
+                    </div>
+
+                    <!-- Barre de progression de complétion -->
+                    <div class="mt-6">
+                        <div class="flex justify-between items-center text-xs mb-1.5">
+                            <span class="text-blue-200 font-medium">Progression des champs obligatoires</span>
+                            <span id="progressText" class="font-bold text-white bg-white/15 px-2 py-0.5 rounded-md">0%</span>
+                        </div>
+                        <div class="w-full bg-blue-950/60 rounded-full h-2.5 overflow-hidden p-0.5 border border-white/10">
+                            <div id="progressBar" class="bg-gradient-to-r from-blue-400 to-emerald-400 h-full rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Annotation IHM #3 : Légende champs obligatoires -->
+                <div class="px-6 sm:px-8 pt-5 pb-2 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 bg-slate-50/50">
+                    <p class="text-xs text-slate-600 flex items-center">
+                        <span class="text-rose-600 font-bold text-base mr-1.5">*</span> 
+                        Indique un champ obligatoire pour valider votre dossier
+                    </p>
+
+                    <!-- Badge IHM #3 -->
+                    <div class="ihm-annotation hidden items-center space-x-1.5 bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-lg text-xs font-medium">
+                        <span class="bg-amber-600 text-white w-4 h-4 rounded-full inline-flex items-center justify-center text-[10px] font-bold">3</span>
+                        <span>Incitation : Distinction explicite Obligatoire (*) vs Optionnel</span>
+                    </div>
+                </div>
+
+                <!-- Corps du Formulaire -->
+                <form id="esgaeForm" novalidate class="p-6 sm:p-8 space-y-6">
+
+                    <!-- Annotation IHM #1 : Guidage & Libellés -->
+                    <div class="ihm-annotation hidden bg-amber-50 border border-amber-300 rounded-xl p-3 text-xs text-amber-900 flex items-start space-x-2.5">
+                        <span class="bg-amber-600 text-white w-5 h-5 rounded-full inline-flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</span>
+                        <div>
+                            <strong>Amélioration IHM #1 (Guidage & Lisibilité) :</strong> Contrairement au formulaire initial aux champs vides numérotés de 1 à 5, chaque champ possède désormais un <em>label explicite</em>, une icône sémantique et un exemple de saisie (<em>placeholder</em>).
+                        </div>
+                    </div>
+
+                    <!-- Grille Nom et Prénom -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        
+                        <!-- CHAMP 1 : NOM -->
+                        <div class="field-group">
+                            <label for="nom" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                Nom de famille <span class="text-rose-600" aria-hidden="true">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-regular fa-user"></i>
+                                </div>
+                                <input type="text" id="nom" name="nom" required autocomplete="family-name"
+                                    placeholder="Ex : MOUKOUANGA"
+                                    class="input-transition w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/15 focus:border-esgae-royal">
+                                <!-- Icône de statut (Validation / Erreur) -->
+                                <div id="icon-nom" class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none hidden"></div>
+                            </div>
+                            <!-- Message d'erreur contextuel -->
+                            <p id="error-nom" class="hidden mt-1.5 text-xs text-rose-600 flex items-center space-x-1 font-medium">
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                                <span>Veuillez saisir votre nom de famille (min. 2 caractères).</span>
+                            </p>
+                        </div>
+
+                        <!-- CHAMP 2 : PRÉNOM(S) -->
+                        <div class="field-group">
+                            <label for="prenom" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                Prénom(s) <span class="text-rose-600" aria-hidden="true">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-regular fa-id-card"></i>
+                                </div>
+                                <input type="text" id="prenom" name="prenom" required autocomplete="given-name"
+                                    placeholder="Ex : Lemmy Hermin"
+                                    class="input-transition w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/15 focus:border-esgae-royal">
+                                <div id="icon-prenom" class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none hidden"></div>
+                            </div>
+                            <p id="error-prenom" class="hidden mt-1.5 text-xs text-rose-600 flex items-center space-x-1 font-medium">
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                                <span>Veuillez renseigner votre ou vos prénom(s).</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- CHAMP 3 : ADRESSE E-MAIL -->
+                    <div class="field-group">
+                        <label for="email" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            Adresse e-mail <span class="text-rose-600" aria-hidden="true">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-regular fa-envelope"></i>
+                            </div>
+                            <input type="email" id="email" name="email" required autocomplete="email"
+                                placeholder="exemple.etudiant@domaine.cg"
+                                class="input-transition w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/15 focus:border-esgae-royal">
+                            <div id="icon-email" class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none hidden"></div>
+                        </div>
+                        <p id="error-email" class="hidden mt-1.5 text-xs text-rose-600 flex items-center space-x-1 font-medium">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span>Veuillez saisir une adresse e-mail valide (ex: nom@domaine.com).</span>
+                        </p>
+                    </div>
+
+                    <!-- CHAMP 4 : NUMÉRO DE TÉLÉPHONE (OPTIONNEL) -->
+                    <div class="field-group">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label for="telephone" class="block text-sm font-semibold text-slate-700">
+                                Numéro de téléphone
+                            </label>
+                            <span class="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                                Optionnel
+                            </span>
+                        </div>
+                        <div class="relative flex rounded-xl shadow-xs">
+                            <span class="inline-flex items-center px-3.5 rounded-l-xl border border-r-0 border-slate-300 bg-slate-100 text-slate-600 text-sm font-medium select-none">
+                                <span class="mr-1.5">🇨🇬</span> +242
+                            </span>
+                            <input type="tel" id="telephone" name="telephone" autocomplete="tel-national"
+                                placeholder="06 600 00 00"
+                                class="input-transition flex-1 min-w-0 block w-full px-3.5 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-r-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/15 focus:border-esgae-royal">
+                            <div id="icon-telephone" class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none hidden"></div>
+                        </div>
+                        <p id="hint-telephone" class="mt-1 text-xs text-slate-500">
+                            Utile pour recevoir votre confirmation d'inscription par SMS.
+                        </p>
+                        <p id="error-telephone" class="hidden mt-1.5 text-xs text-rose-600 flex items-center space-x-1 font-medium">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span>Format invalide : saisissez un numéro congolais à 9 chiffres (ex: 06 612 34 56).</span>
+                        </p>
+                    </div>
+
+                    <!-- CHAMP 5 : NIVEAU D'ÉTUDES / FILIÈRE -->
+                    <div class="field-group">
+                        <label for="niveau" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            Niveau d'études souhaité <span class="text-rose-600" aria-hidden="true">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <select id="niveau" name="niveau" required
+                                class="input-transition appearance-none w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/15 focus:border-esgae-royal cursor-pointer">
+                                <option value="" disabled selected>-- Sélectionnez votre cycle ou niveau --</option>
+                                <option value="Licence 1">Licence 1 (Troncs communs Gestion / Informatique)</option>
+                                <option value="Licence 2">Licence 2 (Spécialisation progressive)</option>
+                                <option value="Licence 3">Licence 3 (Licence Professionnelle)</option>
+                                <option value="Master 1">Master 1 (Cycle Ingénieur / Management)</option>
+                                <option value="Master 2">Master 2 (Expertise & Recherche)</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-500">
+                                <i id="chevron-niveau" class="fa-solid fa-chevron-down text-xs"></i>
+                                <span id="icon-niveau" class="hidden ml-2"></span>
+                            </div>
+                        </div>
+                        <p id="error-niveau" class="hidden mt-1.5 text-xs text-rose-600 flex items-center space-x-1 font-medium">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span>Veuillez sélectionner un niveau d'études dans la liste.</span>
+                        </p>
+                    </div>
+
+                    <!-- Annotation IHM #2 : Gestion des erreurs contextuelles -->
+                    <div class="ihm-annotation hidden bg-amber-50 border border-amber-300 rounded-xl p-3 text-xs text-amber-900 flex items-start space-x-2.5">
+                        <span class="bg-amber-600 text-white w-5 h-5 rounded-full inline-flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</span>
+                        <div>
+                            <strong>Amélioration IHM #2 (Gestion des erreurs) :</strong> Le bandeau d'erreur vague en bas de page a été remplacé par des <em>messages contextuels précis</em> directement sous chaque champ invalide, réduisant la charge cognitive.
+                        </div>
+                    </div>
+
+                    <!-- Zone des Boutons d'action -->
+                    <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                        
+                        <!-- Bouton secondaire Réinitialiser -->
+                        <button type="button" id="resetBtn"
+                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-800 transition-colors flex items-center justify-center space-x-2 cursor-pointer">
+                            <i class="fa-solid fa-rotate-left text-xs"></i>
+                            <span>Réinitialiser</span>
+                        </button>
+
+                        <!-- Bouton principal Envoyer (État dynamique) -->
+                        <button type="submit" id="submitBtn" disabled
+                            class="w-full sm:w-auto flex-1 sm:flex-initial px-6 py-3 rounded-xl text-sm font-semibold text-white bg-slate-300 cursor-not-allowed transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm">
+                            <span>Envoyer ma demande d'inscription</span>
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Annotation IHM #4 : Feedback temps réel & Contrôle -->
+                    <div class="ihm-annotation hidden bg-amber-50 border border-amber-300 rounded-xl p-3 text-xs text-amber-900 flex items-start space-x-2.5">
+                        <span class="bg-amber-600 text-white w-5 h-5 rounded-full inline-flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">4</span>
+                        <div>
+                            <strong>Amélioration IHM #4 (Rétroaction / Feedback immédiat) :</strong> Validation en temps réel (bordure verte + coche ✔️), barre de progression dynamique et activation intelligente du bouton d'envoi uniquement lorsque le formulaire est prêt.
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Pied de page discret -->
+            <footer class="mt-6 text-center text-xs text-slate-400">
+                <p>Projet d'Interface Homme-Machine (IHM) • Refonte ergonomique du formulaire ESGAE</p>
+            </footer>
+        </div>
+    </main>
+
+    <!-- MODALE DE CONFIRMATION ÉLÉGANTE -->
+    <div id="confirmationModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 modal-animate relative">
+            
+            <!-- Icône de succès animée -->
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+                <i class="fa-solid fa-check text-3xl"></i>
+            </div>
+
+            <h2 class="text-xl font-bold text-center text-esgae-navy">Demande enregistrée !</h2>
+            <p class="text-sm text-center text-slate-600 mt-1.5">
+                Bienvenue à l'<strong>ESGAE</strong>. Votre dossier de pré-inscription a bien été transmis à la scolarité.
+            </p>
+
+            <!-- Récapitulatif des données saisies -->
+            <div class="mt-5 bg-slate-50 rounded-xl p-4 border border-slate-200/80 space-y-2.5 text-sm">
+                <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Récapitulatif de votre dossier</div>
+                
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Candidat :</span>
+                    <span id="recap-fullname" class="font-semibold text-slate-800 text-right"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">E-mail :</span>
+                    <span id="recap-email" class="font-medium text-slate-800 text-right break-all"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Téléphone :</span>
+                    <span id="recap-phone" class="font-medium text-slate-800 text-right"></span>
+                </div>
+                <div class="flex justify-between pt-2 border-t border-slate-200">
+                    <span class="text-slate-500">Niveau choisi :</span>
+                    <span id="recap-niveau" class="font-bold text-esgae-royal text-right"></span>
+                </div>
+            </div>
+
+            <button type="button" id="closeModalBtn"
+                class="mt-6 w-full py-3 px-4 bg-esgae-navy hover:bg-blue-900 text-white font-semibold text-sm rounded-xl transition-colors cursor-pointer shadow-md">
+                Parfait, terminer
+            </button>
+        </div>
+    </div>
+
+    <!-- LOGIQUE JAVASCRIPT : Validation temps réel, progression et mode présentation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Références aux éléments du DOM
+            const form = document.getElementById('esgaeForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+
+            // Champs du formulaire
+            const fields = {
+                nom: document.getElementById('nom'),
+                prenom: document.getElementById('prenom'),
+                email: document.getElementById('email'),
+                telephone: document.getElementById('telephone'),
+                niveau: document.getElementById('niveau')
+            };
+
+            // État de validité des champs (telephone est optionnel donc valide par défaut si vide)
+            const validityState = {
+                nom: false,
+                prenom: false,
+                email: false,
+                telephone: true,
+                niveau: false
+            };
+
+            // Suivi pour savoir si l'utilisateur a déjà interagi avec un champ (évite le rouge agressif au chargement)
+            const touchedState = {
+                nom: false,
+                prenom: false,
+                email: false,
+                telephone: false,
+                niveau: false
+            };
+
+            // Expressions régulières de validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+            // Accepte 9 chiffres (ex: 066123456 ou 06 612 34 56)
+            const phoneRegex = /^(0[456])[0-9]{7}$/;
+
+            /**
+             * Valide un champ spécifique et met à jour son apparence visuelle
+             */
+            function validateField(fieldName, showErrors = true) {
+                const input = fields[fieldName];
+                const value = input.value.trim();
+                let isValid = false;
+
+                switch (fieldName) {
+                    case 'nom':
+                    case 'prenom':
+                        isValid = value.length >= 2;
+                        break;
+                    case 'email':
+                        isValid = emailRegex.test(value);
+                        break;
+                    case 'telephone':
+                        if (value === '') {
+                            isValid = true; // Champ optionnel
+                        } else {
+                            // Nettoyer les espaces ou tirets pour tester les 9 chiffres
+                            const cleanPhone = value.replace(/[\s.-]/g, '');
+                            isValid = phoneRegex.test(cleanPhone);
+                        }
+                        break;
+                    case 'niveau':
+                        isValid = value !== '';
+                        break;
+                }
+
+                validityState[fieldName] = isValid;
+                updateFieldUI(fieldName, isValid, value === '', showErrors);
+                updateFormProgress();
+            }
+
+            /**
+             * Met à jour les classes Tailwind, icônes et messages d'erreur d'un champ
+             */
+            function updateFieldUI(fieldName, isValid, isEmpty, showErrors) {
+                const input = fields[fieldName];
+                const errorEl = document.getElementById(`error-${fieldName}`);
+                const iconEl = document.getElementById(`icon-${fieldName}`);
+
+                // Réinitialisation des bordures
+                input.classList.remove(
+                    'border-slate-300', 'border-emerald-500', 'border-rose-500',
+                    'bg-emerald-50/30', 'bg-rose-50/30', 'focus:border-esgae-royal',
+                    'focus:border-emerald-500', 'focus:border-rose-500'
+                );
+
+                // Cas spécial : téléphone optionnel et vide -> retour à l'état neutre
+                if (fieldName === 'telephone' && isEmpty) {
+                    input.classList.add('border-slate-300', 'focus:border-esgae-royal');
+                    if (errorEl) errorEl.classList.add('hidden');
+                    if (iconEl) iconEl.classList.add('hidden');
+                    return;
+                }
+
+                if (isValid) {
+                    // État VALIDE : Bordure verte + coche verte
+                    input.classList.add('border-emerald-500', 'bg-emerald-50/30', 'focus:border-emerald-500');
+                    if (errorEl) errorEl.classList.add('hidden');
+                    if (iconEl) {
+                        iconEl.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500 text-base"></i>';
+                        iconEl.classList.remove('hidden');
+                    }
+                } else if (showErrors || touchedState[fieldName]) {
+                    // État INVALIDE : Bordure rouge + message contextuel
+                    input.classList.add('border-rose-500', 'bg-rose-50/30', 'focus:border-rose-500');
+                    if (errorEl) errorEl.classList.remove('hidden');
+                    if (iconEl) {
+                        iconEl.innerHTML = '<i class="fa-solid fa-circle-exclamation text-rose-500 text-base"></i>';
+                        iconEl.classList.remove('hidden');
+                    }
+                } else {
+                    // État NEUTRE initial
+                    input.classList.add('border-slate-300', 'focus:border-esgae-royal');
+                    if (errorEl) errorEl.classList.add('hidden');
+                    if (iconEl) iconEl.classList.add('hidden');
+                }
+            }
+
+            /**
+             * Calcule le pourcentage de complétion des 4 champs obligatoires
+             * et active/désactive le bouton d'envoi
+             */
+            function updateFormProgress() {
+                const requiredKeys = ['nom', 'prenom', 'email', 'niveau'];
+                const validRequiredCount = requiredKeys.filter(key => validityState[key]).length;
+                const percentage = Math.round((validRequiredCount / requiredKeys.length) * 100);
+
+                // Mise à jour barre de progression
+                progressBar.style.width = `${percentage}%`;
+                progressText.textContent = `${percentage}%`;
+
+                // Vérifier si tout le formulaire (y compris téléphone si rempli) est valide
+                const isAllFormValid = Object.values(validityState).every(Boolean);
+
+                if (isAllFormValid) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('bg-slate-300', 'cursor-not-allowed');
+                    submitBtn.classList.add('bg-esgae-royal', 'hover:bg-blue-800', 'cursor-pointer', 'shadow-lg', 'shadow-blue-600/25', 'transform', 'hover:-translate-y-0.5');
+                } else {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('bg-slate-300', 'cursor-not-allowed');
+                    submitBtn.classList.remove('bg-esgae-royal', 'hover:bg-blue-800', 'cursor-pointer', 'shadow-lg', 'shadow-blue-600/25', 'transform', 'hover:-translate-y-0.5');
+                }
+            }
+
+            // Formatage automatique léger pour le téléphone (ex: 06 612 34 56)
+            fields.telephone.addEventListener('input', (e) => {
+                let digits = e.target.value.replace(/\D/g, '').substring(0, 9);
+                let formatted = digits;
+                if (digits.length > 2) {
+                    formatted = digits.slice(0, 2) + ' ' + digits.slice(2);
+                }
+                if (digits.length > 5) {
+                    formatted = formatted.slice(0, 6) + ' ' + digits.slice(5);
+                }
+                if (digits.length > 7) {
+                    formatted = formatted.slice(0, 9) + ' ' + digits.slice(7);
+                }
+                e.target.value = formatted;
+            });
+
+            // Écouteurs d'événements en temps réel sur tous les champs
+            Object.keys(fields).forEach(fieldName => {
+                const el = fields[fieldName];
+                const eventType = el.tagName === 'SELECT' ? 'change' : 'input';
+
+                el.addEventListener(eventType, () => {
+                    // Si le champ est valide dès la frappe, on affiche le vert immédiatement
+                    // S'il est invalide pendant la frappe, on attend le blur sauf s'il a déjà été touché
+                    validateField(fieldName, touchedState[fieldName]);
+                });
+
+                el.addEventListener('blur', () => {
+                    touchedState[fieldName] = true;
+                    validateField(fieldName, true);
+                });
+            });
+
+            // Bouton Réinitialiser
+            resetBtn.addEventListener('click', () => {
+                form.reset();
+                Object.keys(fields).forEach(key => {
+                    touchedState[key] = false;
+                    validityState[key] = (key === 'telephone');
+                    updateFieldUI(key, false, true, false);
+                });
+                updateFormProgress();
+            });
+
+            // Gestion de la soumission et affichage de la modale de confirmation
+            const modal = document.getElementById('confirmationModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                // Forcer la validation de tous les champs
+                Object.keys(fields).forEach(key => {
+                    touchedState[key] = true;
+                    validateField(key, true);
+                });
+
+                if (Object.values(validityState).every(Boolean)) {
+                    // Remplir le récapitulatif
+                    document.getElementById('recap-fullname').textContent = 
+                        `${fields.nom.value.trim().toUpperCase()} ${fields.prenom.value.trim()}`;
+                    document.getElementById('recap-email').textContent = fields.email.value.trim();
+                    
+                    const phoneVal = fields.telephone.value.trim();
+                    document.getElementById('recap-phone').textContent = phoneVal ? `+242 ${phoneVal}` : 'Non renseigné';
+                    document.getElementById('recap-niveau').textContent = fields.niveau.value;
+
+                    // Afficher la modale
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            });
+
+            // Fermeture de la modale
+            closeModalBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                resetBtn.click(); // Réinitialise proprement après confirmation
+            });
+
+            // MODE PRÉSENTATION IHM (Pour votre soutenance de mercredi)
+            const toggleIhmBtn = document.getElementById('toggleIhmBtn');
+            const toggleIhmText = document.getElementById('toggleIhmText');
+            const ihmBanner = document.getElementById('ihmBanner');
+            const annotations = document.querySelectorAll('.ihm-annotation');
+            let isPresentationMode = false;
+
+            toggleIhmBtn.addEventListener('click', () => {
+                isPresentationMode = !isPresentationMode;
+
+                if (isPresentationMode) {
+                    ihmBanner.classList.remove('hidden');
+                    annotations.forEach(el => {
+                        el.classList.remove('hidden');
+                        if (!el.classList.contains('flex')) el.classList.add('flex');
+                    });
+                    toggleIhmBtn.classList.replace('bg-amber-500/15', 'bg-amber-500');
+                    toggleIhmBtn.classList.replace('text-amber-300', 'text-slate-950');
+                    toggleIhmText.textContent = 'Masquer les annotations IHM';
+                } else {
+                    ihmBanner.classList.add('hidden');
+                    annotations.forEach(el => {
+                        el.classList.add('hidden');
+                        el.classList.remove('flex');
+                    });
+                    toggleIhmBtn.classList.replace('bg-amber-500', 'bg-amber-500/15');
+                    toggleIhmBtn.classList.replace('text-slate-950', 'text-amber-300');
+                    toggleIhmText.textContent = 'Mode Présentation IHM : Voir les améliorations';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
