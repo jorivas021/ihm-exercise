@@ -121,11 +121,11 @@
                     </div>
                 </div>
 
-                <!-- Barre de progression dynamique (6 champs obligatoires avec Niveau d'études) -->
+                <!-- Barre de progression dynamique (8 champs obligatoires) -->
                 <div class="mt-6">
                     <div class="flex justify-between items-center text-xs font-medium text-blue-100 mb-1.5">
                         <span>Progression de votre dossier</span>
-                        <span id="progressText" class="font-bold text-white">0% complété (0/6 requis)</span>
+                        <span id="progressText" class="font-bold text-white">0% complété (0/8 requis)</span>
                     </div>
                     <div class="w-full h-2.5 bg-blue-950/60 rounded-full overflow-hidden p-0.5">
                         <div id="progressBar" class="h-full bg-gradient-to-r from-amber-400 to-emerald-400 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
@@ -156,14 +156,14 @@
                     </div>
                 </div>
 
-                <!-- Grille Nom & Prénom (Amélioration #1 : Libellés explicites) -->
+                <!-- Grille Nom & Prénom (Amélioration #1 : Libellés explicites + contrôle strict lettres) -->
                 <div class="relative space-y-5">
                     <!-- Bulle IHM #1 -->
                     <div class="ihm-callout hidden p-3 rounded-xl bg-amber-50 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
                         <span class="ihm-badge-pulse shrink-0 w-6 h-6 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center">1</span>
                         <div>
-                            <strong class="block font-bold">Amélioration IHM #1 — Guidage & Libellés Explicites (Labels + Placeholders)</strong>
-                            Les champs muets numérotés de 1 à 5 ont été remplacés par des libellés visibles en permanence, des icônes sémantiques et des exemples concrets de saisie.
+                            <strong class="block font-bold">Amélioration IHM #1 — Guidage & Contrôle Strict des Lettres</strong>
+                            Les champs muets numérotés de 1 à 5 ont été remplacés par des libellés visibles en permanence, des exemples concrets et un rejet immédiat des caractères non alphabétiques (<em>"Caractère invalide"</em>).
                         </div>
                     </div>
 
@@ -180,7 +180,7 @@
                                     </svg>
                                 </div>
                                 <input type="text" id="lastName" name="lastName" required autocomplete="family-name"
-                                    placeholder="Ex : RIVAS"
+                                    placeholder="Ex : MBOUSSA"
                                     aria-describedby="lastNameError"
                                     class="w-full pl-11 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-esgae-accent focus:border-transparent transition">
                                 <span id="lastNameStatus" class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none"></span>
@@ -200,7 +200,7 @@
                                     </svg>
                                 </div>
                                 <input type="text" id="firstName" name="firstName" required autocomplete="given-name"
-                                    placeholder="Ex : José Gloire"
+                                    placeholder="Ex : Océane"
                                     aria-describedby="firstNameError"
                                     class="w-full pl-11 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-esgae-accent focus:border-transparent transition">
                                 <span id="firstNameStatus" class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none"></span>
@@ -210,7 +210,50 @@
                     </div>
                 </div>
 
-                <!-- Champ 3 : Adresse E-mail -->
+                <!-- Date de naissance & Lieu de naissance -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <!-- Date de naissance -->
+                    <div>
+                        <label for="birthDate" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                            Date de naissance <span class="text-red-500" aria-hidden="true">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <input type="date" id="birthDate" name="birthDate" required
+                                min="1950-01-01" max="2015-12-31"
+                                aria-describedby="birthDateError"
+                                class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/80 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-esgae-accent focus:border-transparent transition">
+                        </div>
+                        <p id="birthDateError" role="alert" class="mt-1.5 text-xs font-medium text-red-600 dark:text-red-400 hidden"></p>
+                    </div>
+
+                    <!-- Lieu de naissance -->
+                    <div>
+                        <label for="birthPlace" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                            Lieu de naissance <span class="text-red-500" aria-hidden="true">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <input type="text" id="birthPlace" name="birthPlace" required autocomplete="address-level2"
+                                placeholder="Ex : Brazzaville"
+                                aria-describedby="birthPlaceError"
+                                class="w-full pl-11 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-esgae-accent focus:border-transparent transition">
+                            <span id="birthPlaceStatus" class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none"></span>
+                        </div>
+                        <p id="birthPlaceError" role="alert" class="mt-1.5 text-xs font-medium text-red-600 dark:text-red-400 hidden"></p>
+                    </div>
+                </div>
+
+                <!-- Champ 3 : Adresse E-mail (Validation stricte du domaine et de l'extension TLD) -->
                 <div>
                     <label for="email" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                         Adresse e-mail <span class="text-red-500" aria-hidden="true">*</span>
@@ -222,12 +265,11 @@
                             </svg>
                         </div>
                         <input type="email" id="email" name="email" required autocomplete="email"
-                            placeholder="etudiant.esgae@exemple.com"
+                            placeholder="etudiant.esgae@gmail.com"
                             aria-describedby="emailHelp emailError"
                             class="w-full pl-11 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-esgae-accent focus:border-transparent transition">
                         <span id="emailStatus" class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none"></span>
                     </div>
-                    <p id="emailHelp" class="mt-1 text-xs text-slate-500 dark:text-slate-400">Votre convocation et vos identifiants seront envoyés à cette adresse.</p>
                     <p id="emailError" role="alert" class="mt-1 text-xs font-medium text-red-600 dark:text-red-400 hidden"></p>
                 </div>
 
@@ -246,7 +288,7 @@
                             </div>
                             <select id="studyLevel" name="studyLevel" required aria-describedby="studyLevelError"
                                 class="w-full pl-11 pr-9 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-esgae-accent focus:border-transparent transition appearance-none">
-                                <option value="">-- Choisir un cycle --</option>
+                                <option value="">-- Veuillez Choisir un cycle --</option>
                                 <option value="BTS">Cycle BTS (Bac +2)</option>
                                 <option value="LICENCE">Cycle Licence (L1, L2, L3)</option>
                                 <option value="MASTER">Cycle Master (M1, M2)</option>
@@ -293,7 +335,7 @@
                             Numéro de téléphone <span class="text-red-500" aria-hidden="true">*</span>
                         </label>
                         <span class="text-xs font-medium px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/70 text-esgae-accent dark:text-blue-300">
-                            🌍 J'ai volé les logos sur Internet
+                            🌍 José est trop balaise !!!
                         </span>
                     </div>
                     <div class="relative flex rounded-xl shadow-sm">
@@ -342,8 +384,8 @@
                 <div class="ihm-callout hidden p-3 rounded-xl bg-amber-50 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
                     <span class="ihm-badge-pulse shrink-0 w-6 h-6 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center">2</span>
                     <div>
-                        <strong class="block font-bold">Amélioration IHM #2 — Gestion Contextuelle des Erreurs</strong>
-                        Fini le message générique en bas de page (<em>"Certains champs sont invalides"</em>). Chaque erreur s'affiche directement sous le champ concerné avec une explication précise pour faciliter la correction.
+                        <strong class="block font-bold">Amélioration IHM #2 — Gestion Contextuelle & Rigoureuse des Erreurs</strong>
+                        Fini le message générique en bas de page et les formats douteux (comme <code class="font-semibold">student@gmail.2ie</code>). Chaque champ contrôle précisément la syntaxe attendue et affiche l'erreur exacte sous le champ concerné.
                     </div>
                 </div>
 
@@ -353,13 +395,13 @@
                         <span class="ihm-badge-pulse shrink-0 w-6 h-6 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center">4</span>
                         <div>
                             <strong class="block font-bold">Amélioration IHM #4 — Rétroaction Immédiate & Contrôle Utilisateur</strong>
-                            La barre de progression, le filtrage dynamique des filières par cycle, les coches vertes instantanées et l'état adaptatif du bouton informent l'utilisateur en temps réel.
+                            La barre de progression (0/8), le filtrage dynamique des filières par cycle, les coches vertes instantanées et l'état adaptatif du bouton informent l'utilisateur en temps réel.
                         </div>
                     </div>
 
                     <button type="submit" id="submitBtn"
                         class="w-full py-3.5 px-6 rounded-xl font-bold text-base text-white bg-slate-400 dark:bg-slate-700 cursor-not-allowed shadow-sm transition-all duration-200 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-esgae-light">
-                        <span id="submitBtnText">Complétez les champs obligatoires (0/6)</span>
+                        <span id="submitBtnText">Complétez les champs obligatoires (0/8)</span>
                         <svg id="submitBtnIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                         </svg>
@@ -434,11 +476,11 @@
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-red-500 font-bold">✕</span>
-                            <span><strong>Ambiguïté totale :</strong> Impossible de savoir quels champs sont obligatoires avant la soumission.</span>
+                            <span><strong>Validation laxiste :</strong> Saisie de caractères invalides dans les noms ou formats d'e-mail mal écrits.</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-red-500 font-bold">✕</span>
-                            <span><strong>Bouton "Envoyer" statique :</strong> Aucune indication sur la progression ou la validité avant le clic.</span>
+                            <span><strong>Données d'état civil incomplètes :</strong> Absence de date et lieu de naissance.</span>
                         </li>
                     </ul>
                 </div>
@@ -452,19 +494,19 @@
                     <ul class="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                         <li class="flex items-start gap-2">
                             <span class="text-emerald-600 font-bold">✓</span>
-                            <span><strong>Guidage explicite :</strong> Libellés clairs, sélecteur dynamique Cycle &rarr; Filière et indicatifs téléphoniques internationaux.</span>
+                            <span><strong>Contrôle strict des lettres :</strong> Rejet immédiat des chiffres/symboles avec le message <em>"Caractère invalide"</em>.</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-emerald-600 font-bold">✓</span>
-                            <span><strong>Erreurs ciblées en temps réel :</strong> Message précis juste sous le champ concerné dès la saisie.</span>
+                            <span><strong>E-mail rigoureux :</strong> Blocage des adresses mal formées (ex. <code class="font-semibold">student@gmail.2ie</code>) et exigence d'un domaine &amp; extension valides.</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-emerald-600 font-bold">✓</span>
-                            <span><strong>Incitation visuelle :</strong> Astérisque rouge (<span class="text-red-500 font-bold">*</span>) sur les 6 champs requis.</span>
+                            <span><strong>État civil complet :</strong> Ajout de la date de naissance et du lieu de naissance, plus sélecteur dynamique Cycle &rarr; Filière.</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-emerald-600 font-bold">✓</span>
-                            <span><strong>Rétroaction complète :</strong> Barre de progression (0/6), sauvegarde auto, mode sombre et bouton adaptatif.</span>
+                            <span><strong>Rétroaction complète :</strong> Barre de progression (0/8), sauvegarde auto, mode sombre et indicatifs internationaux.</span>
                         </li>
                     </ul>
                 </div>
@@ -479,7 +521,7 @@
         </div>
     </div>
 
-    <!-- Script JavaScript -->
+    <!-- Script JavaScript séparé dans son propre dossier -->
     <script src="js/app.js"></script>
 </body>
 </html>

@@ -1,27 +1,27 @@
 /**
  * ESGAE — Inscription en Ligne (Projet IHM L3)
  * Logique interactive, sélecteur dynamique Cycle -> Filière,
- * validation ergonomique internationale en temps réel,
- * persistance locale (Auto-save) et Mode Présentation Soutenance.
+ * validation ergonomique stricte (lettres uniquement, e-mail rigoureux, date/lieu de naissance),
+ * indicatifs internationaux et Mode Présentation Soutenance.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Catalogue dynamique des filières ESGAE par niveau d'études ---
     const ESGAE_PROGRAMS_BY_LEVEL = {
         BTS: [
-            'BTS Génie Logiciel ',
-            'BTS Administration des Bases de Données',
-            'BTS Administration Systèmes & Réseaux',
+            'BTS Analyse & Programmation (AP)',
+            'BTS Informatique de Gestion',
+            'BTS Réseaux & Télécommunications',
             'BTS Comptabilité & Gestion des Entreprises',
             'BTS Commerce International & Marketing',
             'BTS Assistant de Direction & Gestion'
         ],
         LICENCE: [
-            'Licence 1 — Tronc Commun Informatique ',
+            'Licence 1 — Tronc Commun Informatique & Gestion',
             'Licence 2 — Analyse & Programmation',
-            'Licence 3 — José & Rivastatique',
-            'Licence 3 — Génie Logiciel ',
-            'Licence 3 — Administration des Entreprises & Management',
+            'Licence 3 — Administration Systèmes & Réseaux (ASR)',
+            'Licence 3 — Génie Logiciel (GL)',
+            'Licence 3 — Administration des Bases de Données (ABD)',
             'Licence 3 — Comptabilité, Contrôle & Audit (CCA)',
             'Licence 3 — Banque, Finance & Assurance'
         ],
@@ -45,6 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const fields = {
         lastName: document.getElementById('lastName'),
         firstName: document.getElementById('firstName'),
+        birthDate: document.getElementById('birthDate'),
+        birthPlace: document.getElementById('birthPlace'),
         email: document.getElementById('email'),
         studyLevel: document.getElementById('studyLevel'),
         program: document.getElementById('program'),
@@ -57,6 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const errors = {
         lastName: document.getElementById('lastNameError'),
         firstName: document.getElementById('firstNameError'),
+        birthDate: document.getElementById('birthDateError'),
+        birthPlace: document.getElementById('birthPlaceError'),
         email: document.getElementById('emailError'),
         studyLevel: document.getElementById('studyLevelError'),
         program: document.getElementById('programError'),
@@ -66,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statuses = {
         lastName: document.getElementById('lastNameStatus'),
         firstName: document.getElementById('firstNameStatus'),
+        birthPlace: document.getElementById('birthPlaceStatus'),
         email: document.getElementById('emailStatus'),
         phone: document.getElementById('phoneStatus')
     };
@@ -95,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeCompareModalBtn = document.getElementById('closeCompareModalBtn');
     const closeCompareFooterBtn = document.getElementById('closeCompareFooterBtn');
 
-    const STORAGE_KEY = 'esgae_ihm_inscription_draft_v3';
+    const STORAGE_KEY = 'esgae_ihm_inscription_draft_v4';
     const THEME_KEY = 'esgae_ihm_theme';
 
     // Icônes SVG de rétroaction (Feedback visuel)
@@ -117,6 +122,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const touched = {
         lastName: false,
         firstName: false,
+        birthDate: false,
+        birthPlace: false,
         email: false,
         studyLevel: false,
         program: false,
@@ -139,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Activation du sélecteur de filière
         programSelect.disabled = false;
         programSelect.classList.remove('bg-slate-100', 'dark:bg-slate-800/50', 'text-slate-500', 'dark:text-slate-400', 'cursor-not-allowed');
         programSelect.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-900', 'dark:text-white', 'cursor-pointer');
@@ -164,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const chosenLevel = fields.studyLevel.value;
         populateProgramsForLevel(chosenLevel);
 
-        // Réinitialiser l'état visuel de la filière lors du changement de cycle
         touched.studyLevel = true;
         touched.program = false;
         fields.program.classList.remove('border-emerald-500', 'dark:border-emerald-500', 'border-red-500', 'dark:border-red-500');
@@ -262,7 +267,11 @@ document.addEventListener('DOMContentLoaded', () => {
         saveDraft();
     });
 
-    // --- 7. Validation Ergonomique par Champ (Tous les 6 champs obligatoires) ---
+    // --- 7. Validation Ergonomique Stricte par Champ ---
+    const LETTERS_ONLY_REGEX = /^[a-zA-ZÀ-ÖØ-öø-ÿ\s'-]+$/;
+    // E-mail strict : partie locale valide, nom de domaine avec lettres/chiffres/tirets, et extension (TLD) purement alphabétique (2 à 10 lettres, ex: .com, .cg, .fr, .edu)
+    const STRICT_EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,10}$/;
+
     function validateField(name, showFeedback = true) {
         const input = fields[name];
         const value = input.value.trim();
@@ -273,10 +282,10 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'lastName':
                 if (!value) {
                     errorMsg = 'Veuillez renseigner votre nom de famille.';
+                } else if (!LETTERS_ONLY_REGEX.test(value)) {
+                    errorMsg = 'Caractère invalide : seuls les lettres, espaces, traits d’union et apostrophes sont autorisés.';
                 } else if (value.length < 2) {
-                    errorMsg = 'Le nom doit contenir au moins 2 caractères.';
-                } else if (!/^[a-zA-ZÀ-ÿ\s'-]+$/.test(value)) {
-                    errorMsg = 'Le nom ne doit contenir que des lettres.';
+                    errorMsg = 'Le nom doit contenir au moins 2 lettres.';
                 } else {
                     isValid = true;
                 }
@@ -285,23 +294,63 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'firstName':
                 if (!value) {
                     errorMsg = 'Veuillez renseigner votre prénom.';
+                } else if (!LETTERS_ONLY_REGEX.test(value)) {
+                    errorMsg = 'Caractère invalide : seuls les lettres, espaces, traits d’union et apostrophes sont autorisés.';
                 } else if (value.length < 2) {
-                    errorMsg = 'Le prénom doit contenir au moins 2 caractères.';
-                } else if (!/^[a-zA-ZÀ-ÿ\s'-]+$/.test(value)) {
-                    errorMsg = 'Le prénom ne doit contenir que des lettres.';
+                    errorMsg = 'Le prénom doit contenir au moins 2 lettres.';
+                } else {
+                    isValid = true;
+                }
+                break;
+
+            case 'birthDate':
+                if (!value) {
+                    errorMsg = 'Veuillez renseigner votre date de naissance.';
+                } else {
+                    const selectedDate = new Date(value + 'T00:00:00');
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const minDate = new Date('1950-01-01T00:00:00');
+                    const maxDate = new Date('2015-12-31T00:00:00');
+
+                    if (isNaN(selectedDate.getTime()) || selectedDate > today) {
+                        errorMsg = 'Date de naissance invalide (ne peut pas être dans le futur).';
+                    } else if (selectedDate < minDate || selectedDate > maxDate) {
+                        errorMsg = 'Vérifiez l’année de naissance (doit être comprise entre 1950 et 2015).';
+                    } else {
+                        isValid = true;
+                    }
+                }
+                break;
+
+            case 'birthPlace':
+                if (!value) {
+                    errorMsg = 'Veuillez renseigner votre lieu de naissance.';
+                } else if (!LETTERS_ONLY_REGEX.test(value)) {
+                    errorMsg = 'Caractère invalide : le lieu de naissance ne doit contenir que des lettres.';
+                } else if (value.length < 2) {
+                    errorMsg = 'Le lieu de naissance doit contenir au moins 2 lettres.';
                 } else {
                     isValid = true;
                 }
                 break;
 
             case 'email':
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
                 if (!value) {
                     errorMsg = 'L’adresse e-mail est obligatoire pour recevoir votre convocation.';
-                } else if (!emailRegex.test(value)) {
-                    errorMsg = 'Format d’e-mail invalide (exemple attendu : nom@domaine.com).';
+                } else if (!value.includes('@')) {
+                    errorMsg = 'Format d’e-mail invalide : le symbole "@" est manquant (ex : etudiant@gmail.com).';
                 } else {
-                    isValid = true;
+                    const parts = value.split('@');
+                    const domain = parts[1] || '';
+                    const domainLabels = domain.split('.');
+                    const tld = domainLabels[domainLabels.length - 1] || '';
+
+                    if (!STRICT_EMAIL_REGEX.test(value) || domainLabels.length < 2 || !/^[a-zA-Z]{2,10}$/.test(tld)) {
+                        errorMsg = `Adresse e-mail mal écrite ("${value}") : utilisez un format valide comme etudiant@gmail.com ou nom@esgae.cg.`;
+                    } else {
+                        isValid = true;
+                    }
                 }
                 break;
 
@@ -374,9 +423,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 8. Progression Globale (6/6 champs obligatoires) ---
+    // --- 8. Progression Globale (8/8 champs obligatoires) ---
     function updateFormProgress() {
-        const requiredKeys = ['lastName', 'firstName', 'email', 'studyLevel', 'program', 'phone'];
+        const requiredKeys = ['lastName', 'firstName', 'birthDate', 'birthPlace', 'email', 'studyLevel', 'program', 'phone'];
         let validRequiredCount = 0;
 
         requiredKeys.forEach(key => {
@@ -385,12 +434,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        const percentage = Math.round((validRequiredCount / requiredKeys.length) * 100);
+        const total = requiredKeys.length;
+        const percentage = Math.round((validRequiredCount / total) * 100);
 
         progressBar.style.width = `${percentage}%`;
-        progressText.textContent = `${percentage}% complété (${validRequiredCount}/6 requis)`;
+        progressText.textContent = `${percentage}% complété (${validRequiredCount}/${total} requis)`;
 
-        const isFormReady = validRequiredCount === requiredKeys.length;
+        const isFormReady = validRequiredCount === total;
 
         if (isFormReady) {
             submitBtn.disabled = false;
@@ -402,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = true;
             submitBtn.classList.add('bg-slate-400', 'dark:bg-slate-700', 'cursor-not-allowed');
             submitBtn.classList.remove('bg-esgae-blue', 'hover:bg-blue-900', 'cursor-pointer', 'shadow-lg');
-            submitBtnText.textContent = `Complétez les champs obligatoires (${validRequiredCount}/6)`;
+            submitBtnText.textContent = `Complétez les champs obligatoires (${validRequiredCount}/${total})`;
             submitBtnIcon.classList.add('hidden');
         }
     }
@@ -412,6 +462,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const draft = {
             lastName: fields.lastName.value,
             firstName: fields.firstName.value,
+            birthDate: fields.birthDate.value,
+            birthPlace: fields.birthPlace.value,
             email: fields.email.value,
             studyLevel: fields.studyLevel.value,
             program: fields.program.value,
@@ -478,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 10. Écouteurs d'événements sur les champs ---
     Object.keys(fields).forEach(key => {
         const input = fields[key];
-        const eventType = input.tagName === 'SELECT' ? 'change' : 'input';
+        const eventType = input.tagName === 'SELECT' || input.type === 'date' ? 'change' : 'input';
 
         input.addEventListener(eventType, () => {
             if (key === 'phone') {
@@ -503,6 +555,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 11. Soumission & Modales ---
+    function formatFrenchDate(isoDate) {
+        if (!isoDate) return '';
+        const [year, month, day] = isoDate.split('-');
+        return `${day}/${month}/${year}`;
+    }
+
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         let allValid = true;
@@ -517,10 +575,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!allValid) return;
 
         const fullPhone = `${getActiveDialCode()} ${fields.phone.value.trim()}`;
+        const formattedBirth = `${formatFrenchDate(fields.birthDate.value)} à ${fields.birthPlace.value.trim()}`;
+
         recapBox.innerHTML = `
             <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-700">
                 <span class="text-slate-500 dark:text-slate-400">Nom complet :</span>
                 <span class="font-bold text-slate-900 dark:text-white">${fields.lastName.value.trim()} ${fields.firstName.value.trim()}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-700">
+                <span class="text-slate-500 dark:text-slate-400">Naissance :</span>
+                <span class="font-semibold text-slate-900 dark:text-white text-right">${formattedBirth}</span>
             </div>
             <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-700">
                 <span class="text-slate-500 dark:text-slate-400">E-mail :</span>
